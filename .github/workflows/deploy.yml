@@ -32,34 +32,26 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Configure git line endings
-        run: git config --global core.safecrlf false; git config --global core.autocrlf input
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18.12'
           cache: 'npm'
 
-      - name: Cache Node modules
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
       - name: Install dependencies
-        run: |
-          npm config set engine-strict false
-          npm install --legacy-peer-deps || npm install --ignore-scripts
+        run: npm install
 
-      - name: Run Linting
-        shell: pwsh
-        run: |
-          npm run lint:all -or $true
-          Write-Output "Linting completed. Check logs for details."
+      - name: Run linting
+        run: npm run lint:all
 
-      - name: URL Checker with timeout
-        run: node script/url-checker.js ${{ vars.URL_CHECKER_TIMEOUT }}
+      - name: Run all scripts in script/
+        run: |
+          for script in script/*.js; do
+            if [ -f "$script" ]; then
+              echo "Running $script"
+              node "$script"
+            fi
+          done
 
   build:
     name: Build Job
@@ -70,24 +62,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Configure Pages
-        uses: actions/configure-pages@v4
-
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '18.12'
+          cache: 'npm'
 
-      - name: Cache Node modules
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      #- name: Install dependencies
-       # run: npm install
+      - name: Install dependencies
+        run: npm install
 
       - name: Build site
         run: npm run prod
@@ -101,8 +83,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Deploy Application
-        run: |
-          echo "Starting deployment..."
-          scp -r ./build user@server:/var/www/html
-          echo "Application deployed successfully."
+      #- name: Deploy Application
+      #  run: |
+      #    echo "Starting deployment..."
+      #    scp -r ./build user@server:/var/www/html
+      #    echo "Application deployed successfully."
