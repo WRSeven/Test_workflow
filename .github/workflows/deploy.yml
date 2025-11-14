@@ -117,6 +117,7 @@ jobs:
           path: _site
 
       - name: Deploy to GitHub Pages (gh-pages branch)
+        id: deploy_pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -136,26 +137,38 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_SHA: ${{ github.sha }}
           GITHUB_RUN_ID: ${{ github.run_id }}
+          DEPLOY_STATUS: ${{ steps.deploy_pages.outcome }}
         run: |
-          DATE=$(date -u +"%Y-%m-%d %H:%M:%SZ")
+          DATE=$(date -u +"%Y-%m-%d")
           COMMIT_SHA="${GITHUB_SHA}"
           COMMIT_SHORT=$(echo "${COMMIT_SHA}" | cut -c1-7)
           REPO_URL="https://github.com/${GITHUB_REPOSITORY}"
           ACTIONS_URL="${REPO_URL}/actions/runs/${GITHUB_RUN_ID}"
+          PAGES_URL="https://$(echo ${GITHUB_REPOSITORY} | cut -d'/' -f1).github.io/$(echo ${GITHUB_REPOSITORY} | cut -d'/' -f2)/"
           
-          TITLE="${DATE} - Deployment: Success"
+          # Determine deployment status
+          if [ "${DEPLOY_STATUS}" = "success" ]; then
+            STATUS="succeeded"
+          else
+            STATUS="failed"
+          fi
+          
+          TITLE="${DATE} - Deployment: ${STATUS}"
           
           cat > /tmp/issue_body.txt << 'EOF'
-          **Repository:** https://github.com/$GITHUB_REPOSITORY
-          **Commit:** [COMMIT_SHORT](REPO_URL/commit/$GITHUB_SHA)
+          **Repository:** REPO_URL
+          **Commit:** [COMMIT_SHORT](REPO_URL/commit/GITHUB_SHA)
           **Actions Run:** [View Log](ACTIONS_URL)
-          **Status:** Site deployed to `gh-pages` branch
-          **Pages URL:** Check repository settings → Pages to verify deployment
+          **Status:** DEPLOYMENT_STATUS
+          **Pages URL:** PAGES_URL
           EOF
           
-          sed -i "s|COMMIT_SHORT|${COMMIT_SHORT}|g" /tmp/issue_body.txt
           sed -i "s|REPO_URL|${REPO_URL}|g" /tmp/issue_body.txt
+          sed -i "s|COMMIT_SHORT|${COMMIT_SHORT}|g" /tmp/issue_body.txt
+          sed -i "s|GITHUB_SHA|${COMMIT_SHA}|g" /tmp/issue_body.txt
           sed -i "s|ACTIONS_URL|${ACTIONS_URL}|g" /tmp/issue_body.txt
+          sed -i "s|DEPLOYMENT_STATUS|Site deployed to \`gh-pages\` branch|g" /tmp/issue_body.txt
+          sed -i "s|PAGES_URL|${PAGES_URL}|g" /tmp/issue_body.txt
           
           BODY=$(cat /tmp/issue_body.txt)
           gh issue create --title "${TITLE}" --body "${BODY}"
