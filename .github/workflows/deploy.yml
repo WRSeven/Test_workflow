@@ -47,18 +47,25 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Install dependencies
-        run: |
-          npm config set engine-strict false
-          npm install --legacy-peer-deps || npm install --ignore-scripts
+        run: npm install
 
-      - name: Run Linting
+      - name: Run linting
+        run: npm run lint
+
+      - name: Run all scripts in script/
         shell: pwsh
         run: |
-          npm run lint:all -or $true
-          Write-Output "Linting completed. Check logs for details."
+          $scripts = Get-ChildItem -Path "script" -Filter "*.js"
+          foreach ($script in $scripts) {
+            Write-Host "Running $($script.Name)" -ForegroundColor Cyan
+            node $script.FullName
+            if ($LASTEXITCODE -ne 0) {
+              throw "Script $($script.Name) failed with exit code $LASTEXITCODE"
+            }
+          }
 
-      - name: URL Checker with timeout
-        run: node script/url-checker.js ${{ vars.URL_CHECKER_TIMEOUT }}
+      #- name: URL Checker with timeout
+      #  run: node script/url-checker.js ${{ vars.URL_CHECKER_TIMEOUT }}
 
   build:
     name: Build Job
@@ -69,24 +76,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Configure Pages
-        uses: actions/configure-pages@v4
+      #- name: Configure Pages
+      #  uses: actions/configure-pages@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
+      #- name: Set up Node.js
+       # uses: actions/setup-node@v3
+        #with:
+        #  node-version: '18'
 
-      - name: Cache Node modules
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
+      #- name: Cache Node modules
+       # uses: actions/cache@v3
+        #with:
+         # path: ~/.npm
+          #key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          #restore-keys: |
+           # ${{ runner.os }}-node-
 
-      - name: Install dependencies
-        run: npm install
+      #- name: Install dependencies
+       # run: npm install
 
   deploy:
     name: Deploy Job
@@ -97,8 +104,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Deploy Application
-        run: |
-          echo "Starting deployment..."
-          scp -r ./build user@server:/var/www/html
-          echo "Application deployed successfully."
+      #- name: Deploy Application
+       # run: |
+        #  echo "Starting deployment..."
+         # scp -r ./build user@server:/var/www/html
+          #echo "Application deployed successfully."
