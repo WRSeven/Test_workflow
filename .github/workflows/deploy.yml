@@ -130,26 +130,21 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gh jq
 
-      - name: Get Pages URL
-        id: get_pages_url
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          PAGES_URL=$(gh api repos/${{ github.repository }}/pages --jq .html_url 2>&1 | grep -E 'https://' || echo "Pages not yet configured")
-          echo "url=$PAGES_URL" >> $GITHUB_OUTPUT
-        continue-on-error: true
-
       - name: Create deployment issue
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           DATE=$(date -u +"%Y-%m-%d %H:%M:%SZ")
-          STATUS="Success"
-          PAGES_URL="${{ steps.get_pages_url.outputs.url }}"
-          if [ -z "$PAGES_URL" ] || [ "$PAGES_URL" = "Pages not yet configured" ]; then
-            STATUS="Pending"
-            PAGES_URL="Pages deployment in progress. Check Actions for details."
-          fi
-          TITLE="$DATE - Deployment: $STATUS"
-          BODY="URL: $PAGES_URL"
+          COMMIT_SHA=${{ github.sha }}
+          COMMIT_SHORT=$(echo $COMMIT_SHA | cut -c1-7)
+          REPO_URL="https://github.com/${{ github.repository }}"
+          ACTIONS_URL="$REPO_URL/actions/runs/${{ github.run_id }}"
+          
+          TITLE="$DATE - Deployment: Success"
+          BODY="**Repository:** $REPO_URL
+**Commit:** [\`$COMMIT_SHORT\`]($REPO_URL/commit/$COMMIT_SHA)
+**Actions Run:** [View Log]($ACTIONS_URL)
+**Status:** Site deployed to \`gh-pages\` branch
+**Pages URL:** Check repository settings → Pages to verify deployment"
+          
           gh issue create --title "$TITLE" --body "$BODY"
