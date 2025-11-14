@@ -93,6 +93,13 @@ jobs:
           PATH_PREFIX: ${{ vars.PATH_PREFIX }}
         run: npm run prod
 
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: website-build
+          path: _site/
+          retention-days: 30
+
   deploy:
     name: Deploy Job
     runs-on: ubuntu-latest
