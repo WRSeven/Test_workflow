@@ -32,7 +32,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
+      - name: Configure git line endings
+        run: git config --global core.safecrlf false; git config --global core.autocrlf input
         uses: actions/setup-node@v3
         with:
           node-version: '18.12'
