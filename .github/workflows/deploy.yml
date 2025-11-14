@@ -38,8 +38,11 @@ jobs:
           node-version: '18.12'
           cache: 'npm'
 
+      - name: Update npm to 9.x
+        run: npm install -g npm@9
+
       - name: Install dependencies
-        run: npm install
+        run: npm install --legacy-peer-deps --ignore-scripts
 
       - name: Run linting
         run: npm run lint:all
@@ -68,8 +71,11 @@ jobs:
           node-version: '18.12'
           cache: 'npm'
 
+      - name: Update npm to 9.x
+        run: npm install -g npm@9
+
       - name: Install dependencies
-        run: npm install
+        run: npm install --legacy-peer-deps --ignore-scripts
 
       - name: Build site
         run: npm run prod
