@@ -38,6 +38,9 @@ jobs:
           node-version: '18.12'
           cache: 'npm'
 
+      - name: Update npm
+        run: npm install -g npm@9.2.0
+
       - name: Cache Node modules
         uses: actions/cache@v3
         with:
@@ -47,7 +50,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Install dependencies
-        run: npm install
+        run: npm config set engine-strict false; npm install --legacy-peer-deps
 
       - name: Run linting
         run: npm run lint
