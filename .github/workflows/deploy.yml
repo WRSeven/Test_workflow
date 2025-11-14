@@ -57,7 +57,7 @@ jobs:
           done
       
       - name: URL Check with timeout
-        run: node script/url-checker.js ${{ vars.URL_CHECKER_TIMEOUT }}
+        run: node script/url-checker.js -t ${{ vars.URL_CHECKER_TIMEOUT }}
 
   build:
     name: Build Job
