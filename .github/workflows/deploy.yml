@@ -111,9 +111,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
-      #- name: Deploy Application
-       # run: |
         #  echo "Starting deployment..."
          # scp -r ./build user@server:/var/www/html
           #echo "Application deployed successfully."
