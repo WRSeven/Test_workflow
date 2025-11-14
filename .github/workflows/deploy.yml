@@ -94,7 +94,7 @@ jobs:
         run: npm run prod
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: website-build
           path: _site/
