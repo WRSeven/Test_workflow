@@ -133,18 +133,21 @@ jobs:
       - name: Create deployment issue
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
         run: |
           DATE=$(date -u +"%Y-%m-%d %H:%M:%SZ")
-          COMMIT_SHA=${{ github.sha }}
-          COMMIT_SHORT=$(echo $COMMIT_SHA | cut -c1-7)
-          REPO_URL="https://github.com/${{ github.repository }}"
-          ACTIONS_URL="$REPO_URL/actions/runs/${{ github.run_id }}"
+          COMMIT_SHA="${GITHUB_SHA}"
+          COMMIT_SHORT=$(echo "${COMMIT_SHA}" | cut -c1-7)
+          REPO_URL="https://github.com/${GITHUB_REPOSITORY}"
+          ACTIONS_URL="${REPO_URL}/actions/runs/${GITHUB_RUN_ID}"
           
-          TITLE="$DATE - Deployment: Success"
-          BODY="**Repository:** $REPO_URL
-**Commit:** [\`$COMMIT_SHORT\`]($REPO_URL/commit/$COMMIT_SHA)
-**Actions Run:** [View Log]($ACTIONS_URL)
+          TITLE="${DATE} - Deployment: Success"
+          BODY="**Repository:** ${REPO_URL}
+**Commit:** [\`${COMMIT_SHORT}\`](${REPO_URL}/commit/${COMMIT_SHA})
+**Actions Run:** [View Log](${ACTIONS_URL})
 **Status:** Site deployed to \`gh-pages\` branch
 **Pages URL:** Check repository settings → Pages to verify deployment"
           
-          gh issue create --title "$TITLE" --body "$BODY"
+          gh issue create --title "${TITLE}" --body "${BODY}"
