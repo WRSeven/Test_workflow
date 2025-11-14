@@ -130,22 +130,17 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gh jq
 
-      - name: Authenticate GitHub CLI with token
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "${GITHUB_TOKEN}" | gh auth login --with-token
-
-      - name: Check GH auth
-        run: gh auth status
-
       - name: Get Pages URL
         id: get_pages_url
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           PAGES_URL=$(gh api repos/${{ github.repository }}/pages --jq .html_url 2>/dev/null || echo "")
           echo "url=$PAGES_URL" >> $GITHUB_OUTPUT
 
       - name: Create deployment issue
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           DATE=$(date -u +"%Y-%m-%d %H:%M:%SZ")
           STATUS="Success"
