@@ -81,6 +81,8 @@ jobs:
         run: npm install --legacy-peer-deps --ignore-scripts
 
       - name: Build site
+        env:
+          PATH_PREFIX: ${{ vars.PATH_PREFIX }}
         run: npm run prod
 
   deploy:
