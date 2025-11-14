@@ -135,8 +135,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          PAGES_URL=$(gh api repos/${{ github.repository }}/pages --jq .html_url 2>/dev/null || echo "")
+          PAGES_URL=$(gh api repos/${{ github.repository }}/pages --jq .html_url 2>&1 | grep -E 'https://' || echo "Pages not yet configured")
           echo "url=$PAGES_URL" >> $GITHUB_OUTPUT
+        continue-on-error: true
 
       - name: Create deployment issue
         env:
@@ -144,7 +145,11 @@ jobs:
         run: |
           DATE=$(date -u +"%Y-%m-%d %H:%M:%SZ")
           STATUS="Success"
-          if [ -z "${{ steps.get_pages_url.outputs.url }}" ]; then STATUS="Failed"; fi
+          PAGES_URL="${{ steps.get_pages_url.outputs.url }}"
+          if [ -z "$PAGES_URL" ] || [ "$PAGES_URL" = "Pages not yet configured" ]; then
+            STATUS="Pending"
+            PAGES_URL="Pages deployment in progress. Check Actions for details."
+          fi
           TITLE="$DATE - Deployment: $STATUS"
-          BODY="URL: ${{ steps.get_pages_url.outputs.url }}"
+          BODY="URL: $PAGES_URL"
           gh issue create --title "$TITLE" --body "$BODY"
