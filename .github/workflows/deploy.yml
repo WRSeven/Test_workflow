@@ -50,7 +50,11 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Install dependencies
-        run: npm config set engine-strict false; npm install --legacy-peer-deps
+        run: npm config set engine-strict false; npm install --legacy-peer-deps --ignore-scripts
+
+      - name: Build pagefind manually
+        run: node node_modules/pagefind/lib/postinstall.js
+        continue-on-error: true
 
       - name: Run linting
         run: npm run lint
