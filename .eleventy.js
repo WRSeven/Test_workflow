@@ -59,7 +59,11 @@ module.exports = config => {
   config.setLibrary('md', markdownLib);
 
   config.on('eleventy.after', () => {
-    execSync(`npx pagefind --source _site --glob \"**/*.html\"`, { encoding: 'utf-8' })
+    try {
+      execSync(`npx pagefind --source _site --glob \"**/*.html\"`, { encoding: 'utf-8' })
+    } catch (error) {
+      console.warn('Pagefind failed (optional):', error.message);
+    }
   });
 
   // Required for eleventy to run on GitHub Pages
