@@ -98,6 +98,9 @@ jobs:
         run: npm rebuild sharp
         continue-on-error: true
 
+      - name: Debug PATH_PREFIX
+        run: echo "PATH_PREFIX is $PATH_PREFIX"
+
       - name: Build site
         env:
           PATH_PREFIX: ${{ vars.PATH_PREFIX }}
