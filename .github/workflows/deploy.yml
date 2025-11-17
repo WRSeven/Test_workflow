@@ -159,17 +159,17 @@ jobs:
           COMMIT_SHORT=$(echo "${COMMIT_SHA}" | cut -c1-7)
           REPO_URL="https://github.com/${GITHUB_REPOSITORY}"
           ACTIONS_URL="${REPO_URL}/actions/runs/${GITHUB_RUN_ID}"
-          PAGES_URL="https://$(echo ${GITHUB_REPOSITORY} | cut -d'/' -f1).github.io/$(echo ${GITHUB_REPOSITORY} | cut -d'/' -f2)/
-          
+          PAGES_URL="https://$(echo ${GITHUB_REPOSITORY} | cut -d'/' -f1).github.io/$(echo ${GITHUB_REPOSITORY} | cut -d'/' -f2)/"
+
           # Determine deployment status
           if [ "${DEPLOY_STATUS}" = "success" ]; then
             STATUS="succeeded"
           else
             STATUS="failed"
           fi
-          
+
           TITLE="${DATE} - Deployment: ${STATUS}"
-          
+
           cat > /tmp/issue_body.txt << 'EOF'
           **Repository:** REPO_URL
           **Commit:** [COMMIT_SHORT](REPO_URL/commit/GITHUB_SHA)
