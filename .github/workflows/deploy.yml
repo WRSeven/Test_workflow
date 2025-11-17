@@ -70,6 +70,8 @@ jobs:
     name: Build Job
     runs-on: ubuntu-latest
     needs: [test]
+    env:
+      PATH_PREFIX: ${{ vars.PATH_PREFIX }}
 
     steps:
       - name: Checkout repository
@@ -105,8 +107,6 @@ jobs:
         run: printenv
 
       - name: Build site
-        env:
-          PATH_PREFIX: ${{ vars.PATH_PREFIX }}
         run: npm run prod
 
       - name: Upload build artifact
