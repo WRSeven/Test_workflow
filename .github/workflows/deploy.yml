@@ -1,3 +1,4 @@
+
 name: Deploy to Main
 
 on:
@@ -37,13 +38,19 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18.12'
-          cache: 'npm'
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: Update npm to 9.x
         run: npm install -g npm@9
 
-      - name: Install dependencies
-        run: npm install --legacy-peer-deps --ignore-scripts
+     -deps --ignore-scripts
 
       - name: Rebuild native modules (sharp)
         run: npm rebuild sharp
@@ -58,11 +65,7 @@ jobs:
             if [ -f "$script" ]; then
               echo "Running $script"
               node "$script"
-            fi
-          done
-      
-      - name: URL Check with timeout
-        run: node script/url-checker.js -t ${{ vars.URL_CHECKER_TIMEOUT }}
+            node script/url-checker.js -t ${{ vars.URL_CHECKER_TIMEOUT }}
 
   build:
     name: Build Job
@@ -77,7 +80,14 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18.12'
-          cache: 'npm'
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: Update npm to 9.x
         run: npm install -g npm@9
