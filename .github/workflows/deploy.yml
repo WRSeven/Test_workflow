@@ -50,8 +50,6 @@ jobs:
       - name: Update npm to 9.x
         run: npm install -g npm@9
 
-     -deps --ignore-scripts
-
       - name: Rebuild native modules (sharp)
         run: npm rebuild sharp
         continue-on-error: true
